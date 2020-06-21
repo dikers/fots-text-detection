@@ -1,0 +1,40 @@
+{
+    "name": "FOTS",
+    "cuda": true,
+    "gpus": [0],
+    "data_loader": {
+        "dataset":"icdar2015",
+        "data_dir": "/home/ec2-user/datasets/synth_cn/",
+        "batch_size": 16,
+        "shuffle": true,
+        "workers": 8
+    },
+    "validation": {
+        "validation_split": 0.2,
+        "shuffle": true
+    },
+    "lr_scheduler_type": "",
+    "lr_scheduler_freq": 8000,
+    "lr_scheduler": {
+            "gamma": 0.94
+    },
+ 
+    "optimizer_type": "Adam",
+    "optimizer": {
+        "lr": 0.001
+    },
+    "loss": "FOTSLoss",
+    "metrics": ["fots_metric"],
+    "trainer": {
+        "epochs": 100000,
+        "save_dir": "saved/",
+        "save_freq": 20,
+        "verbosity": 2,
+        "monitor": "hmean",
+        "monitor_mode": "max"
+    },
+    "arch": "FOTSModel",
+    "model": {
+        "mode": "united"
+    }
+}
