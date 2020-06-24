@@ -3,6 +3,7 @@ import torch
 import logging
 import pathlib
 import traceback
+import os
 from FOTS.model.model import FOTSModel
 from FOTS.utils.bbox import Toolbox
 
@@ -17,8 +18,9 @@ def load_model(model_path, with_gpu):
     config = checkpoints['config']
     state_dict = checkpoints['state_dict']
     model = FOTSModel(config)
-    #if with_gpu:  多GPU
-    #    model.parallelize()
+    #if torch.cuda.device_count() > 1 and len(self.gpus) > 1:
+    if with_gpu:  #多GPU 训练的模型， 需要打开这个选项
+        model.parallelize()
     model.load_state_dict(state_dict)
     if with_gpu:
         model.to(torch.device('cuda'))
@@ -28,12 +30,13 @@ def load_model(model_path, with_gpu):
 
 
 def main(args:argparse.Namespace):
+    os.environ['CUDA_VISIBLE_DEVICES'] = '3'
     model_path = args.model
     input_dir = args.input_dir
     output_dir = args.output_dir
     with_image = True if output_dir else False
     with_gpu = True if torch.cuda.is_available() else False
-    with_gpu = False
+    with_gpu = True
 
     model = load_model(model_path, with_gpu)
 

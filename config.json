@@ -1,11 +1,11 @@
 {
     "name": "FOTS",
     "cuda": true,
-    "gpus": [0],
+    "gpus": [0,1],
     "data_loader": {
         "dataset":"icdar2015",
-        "data_dir": "/home/ec2-user/datasets/synth_cn/",
-        "batch_size": 16,
+        "data_dir": "/home/ec2-user/datasets/cn_1000/",
+        "batch_size": 20,
         "shuffle": true,
         "workers": 8
     },
@@ -14,7 +14,7 @@
         "shuffle": true
     },
     "lr_scheduler_type": "",
-    "lr_scheduler_freq": 8000,
+    "lr_scheduler_freq": 10000,
     "lr_scheduler": {
             "gamma": 0.94
     },
@@ -28,7 +28,7 @@
     "trainer": {
         "epochs": 100000,
         "save_dir": "saved/",
-        "save_freq": 20,
+        "save_freq": 40,
         "verbosity": 2,
         "monitor": "hmean",
         "monitor_mode": "max"
