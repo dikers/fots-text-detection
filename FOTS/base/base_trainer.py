@@ -101,7 +101,7 @@ class BaseTrainer:
                 self._save_checkpoint(epoch, log, save_best=True)
             if epoch % self.save_freq == 0:
                 self._save_checkpoint(epoch, log)
-            if self.lr_scheduler:
+            if self.lr_scheduler and epoch % 20 == 0:
                 self.lr_scheduler.step()
                 lr = self.lr_scheduler.get_lr()[0]
                 self.logger.info('New Learning Rate: {:.8f}'.format(lr))

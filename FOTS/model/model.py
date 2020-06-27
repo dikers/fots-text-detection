@@ -24,11 +24,7 @@ class FOTSModel:
         self.sharedConv = shared_conv.SharedConv(bbNet, config)
 
         # 重新计算key
-        keys = get_key_from_file_list(os.join(config['data_loader']['data_dir'], 'ch4_training_localization_transcription_gt'))
-        print("-"*30)
-        print('class nums: ',  len(keys)+1)
-        print(keys)
-        print("-"*30)
+        keys = get_key_from_file_list(os.path.join(config['data_loader']['data_dir'], 'ch4_training_localization_transcription_gt'))
         nclass = len(keys) + 1
         self.recognizer = Recognizer(nclass, config)
         self.detector = Detector(config)

@@ -10,18 +10,19 @@
         "workers": 8
     },
     "validation": {
-        "validation_split": 0.2,
+        "validation_split": 0.1,
         "shuffle": true
     },
-    "lr_scheduler_type": "",
+    "lr_scheduler_type": "ExponentialLR",
     "lr_scheduler_freq": 10000,
     "lr_scheduler": {
-            "gamma": 0.94
+            "gamma": 0.98
     },
  
     "optimizer_type": "Adam",
     "optimizer": {
-        "lr": 0.001
+        "lr": 0.001,
+         "weight_decay": 1e-5
     },
     "loss": "FOTSLoss",
     "metrics": ["fots_metric"],

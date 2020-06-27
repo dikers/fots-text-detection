@@ -5,7 +5,8 @@ import os
 import numpy as np
 from shapely.geometry import Polygon
 from FOTS.utils.util import strLabelConverter
-from FOTS.model.keys import keys
+#from FOTS.model.keys import keys
+from FOTS.model.keys import get_key_from_file_list
 
 #from . import lanms
 import torch
@@ -367,7 +368,7 @@ class Toolbox:
             boxes = boxes[:, :8].reshape((-1, 4, 2))
             boxes[:, :, 0] /= ratio_w
             boxes[:, :, 1] /= ratio_h
-            
+        
         labelConverter = strLabelConverter(keys)
         pred_transcripts = []
         if len(mapping) > 0:

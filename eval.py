@@ -30,7 +30,7 @@ def load_model(model_path, with_gpu):
 
 
 def main(args:argparse.Namespace):
-    os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     model_path = args.model
     input_dir = args.input_dir
     output_dir = args.output_dir
