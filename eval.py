@@ -3,9 +3,10 @@ import torch
 import logging
 import pathlib
 import traceback
-import os
 from FOTS.model.model import FOTSModel
 from FOTS.utils.bbox import Toolbox
+from FOTS.model.keys import get_key_from_file_list
+import os
 
 logging.basicConfig(level=logging.DEBUG, format='')
 
@@ -18,14 +19,12 @@ def load_model(model_path, with_gpu):
     config = checkpoints['config']
     state_dict = checkpoints['state_dict']
     model = FOTSModel(config)
-    #if torch.cuda.device_count() > 1 and len(self.gpus) > 1:
-    if with_gpu:  #多GPU 训练的模型， 需要打开这个选项
+    if with_gpu:
         model.parallelize()
     model.load_state_dict(state_dict)
     if with_gpu:
         model.to(torch.device('cuda'))
     model.eval()
-    
     return model
 
 
@@ -36,14 +35,18 @@ def main(args:argparse.Namespace):
     output_dir = args.output_dir
     with_image = True if output_dir else False
     with_gpu = True if torch.cuda.is_available() else False
-    with_gpu = True
+    with_gpu = False
+    with_image = True
 
     model = load_model(model_path, with_gpu)
+    
+    # 重新计算key
+    keys = get_key_from_file_list(os.path.join(args.data_dir,  'ch4_training_localization_transcription_gt'))
 
     for image_fn in input_dir.glob('*.jpg'):
         try:
             with torch.no_grad():
-                ploy, im = Toolbox.predict(image_fn, model, with_image, output_dir, with_gpu)
+                ploy, im = Toolbox.predict(image_fn, model, keys, with_image, output_dir, with_gpu)
                 print(len(ploy))
         except Exception as e:
             traceback.print_exc()
@@ -59,6 +62,8 @@ if __name__ == '__main__':
                         help='output dir for drawn images')
     parser.add_argument('-i', '--input_dir', default=None, type=pathlib.Path, required=False,
                         help='dir for input images')
+    parser.add_argument('-d', '--data_dir', default=None, type=pathlib.Path, required=True,
+                        help='dir for images labels')
     args = parser.parse_args()
     main(args)
 

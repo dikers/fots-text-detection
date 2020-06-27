@@ -40,7 +40,7 @@ class ROIRotate(nn.Module):
 
             # show_box(feature, box / 4, 'ffffff', isFeaturemap=True)
 
-            rotated_rect = cv2.minAreaRect(np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]], dtype=np.float32))
+            rotated_rect = cv2.minAreaRect(np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]]))
             box_w, box_h = rotated_rect[1][0], rotated_rect[1][1]
 
             width = feature.shape[2]
@@ -51,7 +51,10 @@ class ROIRotate(nn.Module):
 
             mapped_x1, mapped_y1 = (0, 0)
             mapped_x4, mapped_y4 = (0, self.height)
-
+            if box_h < 0.001:
+                print("error img_index", img_index)
+                continue
+            
             width_box = math.ceil(self.height * box_w / box_h)
             width_box = min(width_box, width) # not to exceed feature map's width
             max_width = width_box if width_box > max_width else max_width

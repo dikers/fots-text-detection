@@ -7,11 +7,11 @@ from .modules.roi_rotate import ROIRotate
 from .modules.crnn import CRNN
 # from .keys import keys
 from .keys import get_key_from_file_list
-import os
 import pretrainedmodels as pm
 import torch.optim as optim
 from ..utils.bbox import Toolbox
 import numpy as np
+import os
 
 
 class FOTSModel:
@@ -25,6 +25,7 @@ class FOTSModel:
 
         # 重新计算key
         keys = get_key_from_file_list(os.path.join(config['data_loader']['data_dir'], 'ch4_training_localization_transcription_gt'))
+        
         nclass = len(keys) + 1
         self.recognizer = Recognizer(nclass, config)
         self.detector = Detector(config)

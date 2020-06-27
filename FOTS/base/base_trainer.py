@@ -73,7 +73,7 @@ class BaseTrainer:
         """
         Full training logic
         """
-        print('Total epochs : ', self.epochs)
+        print(self.epochs)
         for epoch in range(self.start_epoch, self.epochs + 1):
             try:
                 result = self._train_epoch(epoch)

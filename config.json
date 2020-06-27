@@ -1,16 +1,16 @@
 {
     "name": "FOTS",
     "cuda": true,
-    "gpus": [0,1],
+    "gpus": [0],
     "data_loader": {
         "dataset":"icdar2015",
-        "data_dir": "/home/ec2-user/datasets/cn_1000/",
-        "batch_size": 20,
+        "data_dir": "/home/ec2-user/datasets/cn_20",
+        "batch_size": 8,
         "shuffle": true,
         "workers": 8
     },
     "validation": {
-        "validation_split": 0.1,
+        "validation_split": 0.2,
         "shuffle": true
     },
     "lr_scheduler_type": "ExponentialLR",

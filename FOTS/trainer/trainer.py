@@ -2,9 +2,11 @@ import numpy as np
 import torch
 from ..base import BaseTrainer
 from ..utils.bbox import Toolbox
-from ..model.keys import keys
+#from ..model.keys import keys
+from ..model.keys import get_key_from_file_list
 from ..utils.util import strLabelConverter
 from ..utils.util import show_box
+import os
 
 class Trainer(BaseTrainer):
     """
@@ -24,6 +26,9 @@ class Trainer(BaseTrainer):
         self.valid = True if self.valid_data_loader is not None else False
         self.log_step = int(np.sqrt(self.batch_size))
         self.toolbox = toolbox
+        
+        # 重新计算key
+        keys = get_key_from_file_list(os.path.join(config['data_loader']['data_dir'], 'ch4_training_localization_transcription_gt'))
         self.labelConverter = strLabelConverter(keys)
 
     def _to_tensor(self, *tensors):
@@ -119,9 +124,11 @@ class Trainer(BaseTrainer):
             'recall': total_metrics[1] / len(self.data_loader),
             'hmean': total_metrics[2] / len(self.data_loader)
         }
-        #if self.valid:
-        #    val_log = self._valid_epoch()
-        #    log = {**log, **val_log}
+
+        if self.valid and epoch % 10 == 0:
+            val_log = self._valid_epoch()
+            log = {**log, **val_log}
+
         return log
 
     def _valid_epoch(self):
@@ -137,13 +144,11 @@ class Trainer(BaseTrainer):
         total_val_metrics = np.zeros(3)
         with torch.no_grad():
             for batch_idx, gt in enumerate(self.valid_data_loader):
-                
                 try:
                     imagePaths, img, score_map, geo_map, training_mask, transcripts, boxes, mapping = gt
                     img, score_map, geo_map, training_mask = self._to_tensor(img, score_map, geo_map, training_mask)
+
                     pred_score_map, pred_geo_map, pred_recog, pred_boxes, pred_mapping, indices = self.model.forward(img, boxes, mapping)
-                    
-                    print("-----------_valid_epoch   3 imagePaths: ", imagePaths)
                     pred_transcripts = []
                     pred_fns = []
                     if len(pred_mapping) > 0:

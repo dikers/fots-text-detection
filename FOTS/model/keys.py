@@ -15,6 +15,7 @@ def get_key_from_file_list(input_dir):
                 content += line
 
     content = content.replace('\n', '')
+    content = content.replace('-', '一')
     char_list = list(set(content))
     char_list.sort()
     content = ''.join(char_list)

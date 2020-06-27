@@ -1,30 +1,45 @@
-#   OCR 文本区域检测
+# How to get the theta argument of affine_grid? (Send me email if you need an english version)
 
+![Paper.创意.5.png](https://i.loli.net/2019/12/14/kJ6rKD1C7lMP9xT.png)
 
-FOTS 算法实现
+## I have finished the detection branch and am still training the model to verify its correctness. All the features will be published to develop branch, and keep master stable. 
+ - ICDAR Dataset 
+ - SynthText 800K Dataset
+ - detection branch (verified on the training set, It works!)
+ - eval
+ - multi-gpu training
+ - crnn (not be verified)
+ - reasonable project structure
+ - val loss
+ - tensorboardx visualization
 
+# Introduction
 
-## 建立环境
+This is a PyTorch implementation of [FOTS](https://arxiv.org/abs/1801.01671). 
+ 
+# Questions
 
+- Should I fix weights of the backbone network, resnet50 ?
+  ```python
+  for param in self.backbone.parameters():
+      param.requires_grad = False
+  ```
+  Answer: Yes, the backbone network is used as a feature extractor, so we do not need to modify the weights.
+ 
+- For crnn, the padding size should all be 1, since the width may less than the kernel size, and the outputs' sizes of 
+conv layer in CRNN are all the same? 
+
+# Instruction
 
 ## Requirements
 
 1. build tools
 
-```shell script
-
-conda create -n  ocr python=3.6 pip scipy numpy ##运用conda 创建python环境
-source activate ocr
-pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
-
-```
+   ```
+   ./build.sh
+   ```
 
 2. prepare ICDAR Dataset
-
-[Synth Chinese ](https://github.com/dikers/ocr_synth_text_chinese)
-
-[icdar dataset](https://rrc.cvc.uab.es/?com=introduction)
-
 
 
 ## Training
@@ -38,7 +53,7 @@ pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
         "gpus": [0, 1, 2, 3],
         "data_loader": {
             "dataset":"icdar2015",
-            "data_dir": "./icdar2015/4.4/training",
+            "data_dir": "/Users/luning/Dev/data/icdar/icdar2015/4.4/training",
             "batch_size": 32,
             "shuffle": true,
             "workers": 4
@@ -81,15 +96,15 @@ pip install -r requirements.txt -i https://mirrors.163.com/pypi/simple/
 
    ```
    python3 train.py -c config.json
-   
-   python3 train.py -c config.json -r ./saved/FOTS/model_best.pth.tar
 
+   python3 train.py -c config.json -r ./saved/FOTS/model_best.pth.tar
    ```
    
 ## Evaluation
 
 ```
-python3 eval.py -m  ./saved/FOTS/model_best.pth.tar -i ./temp/ -o ./output/
+python eval.py -m <model.tar.gz> -i <input_images_folder> -o <output_folders>
+python3 eval.py -m  ./saved/FOTS/model_best.pth.tar -d /home/ec2-user/datasets/en_20  -i ../test_image_1 -o ./output/
 
 ```
 

@@ -3,69 +3,11 @@ import time
 import math
 import os
 import numpy as np
-from shapely.geometry import Polygon
+
+# import locality_aware_nms as nms_locality
+from . import lanms
 from FOTS.utils.util import strLabelConverter
-#from FOTS.model.keys import keys
-from FOTS.model.keys import get_key_from_file_list
-
-#from . import lanms
 import torch
-
-
-def intersection(g, p):
-    g = Polygon(g[:8].reshape((4, 2)))
-    p = Polygon(p[:8].reshape((4, 2)))
-    if not g.is_valid or not p.is_valid:
-        return 0
-    inter = Polygon(g).intersection(Polygon(p)).area
-    union = g.area + p.area - inter
-    if union == 0:
-        return 0
-    else:
-        return inter/union
-
-
-def weighted_merge(g, p):
-    g[:8] = (g[8] * g[:8] + p[8] * p[:8])/(g[8] + p[8])
-    g[8] = (g[8] + p[8])
-    return g
-
-
-def standard_nms(S, thres):
-    order = np.argsort(S[:, 8])[::-1]
-    keep = []
-    while order.size > 0:
-        i = order[0]
-        keep.append(i)
-        ovr = np.array([intersection(S[i], S[t]) for t in order[1:]])
-
-        inds = np.where(ovr <= thres)[0]
-        order = order[inds+1]
-
-    return S[keep]
-
-
-def nms_locality(polys, thres=0.3):
-    '''
-    locality aware nms of EAST
-    :param polys: a N*9 numpy array. first 8 coordinates, then prob
-    :return: boxes after nms
-    '''
-    S = []
-    p = None
-    for g in polys:
-        if p is not None and intersection(g, p) > thres:
-            p = weighted_merge(g, p)
-        else:
-            if p is not None:
-                S.append(p)
-            p = g
-    if p is not None:
-        S.append(p)
-
-    if len(S) == 0:
-        return np.array([])
-    return standard_nms(np.array(S), thres)
 
 
 class Toolbox:
@@ -251,8 +193,8 @@ class Toolbox:
         timer['restore'] = time.time() - start
         # nms part
         start = time.time()
-        boxes = nms_locality(boxes.astype(np.float64), nms_thres)
-        # boxes = lanms.merge_quadrangle_n9(boxes.astype('float32'), nms_thres)
+        # boxes = nms_locality.nms_locality(boxes.astype(np.float64), nms_thres)
+        boxes = lanms.merge_quadrangle_n9(boxes.astype('float32'), nms_thres)
         timer['nms'] = time.time() - start
         if boxes.shape[0] == 0:
             return np.array([]), timer
@@ -351,7 +293,7 @@ class Toolbox:
         return box_List
 
     @staticmethod
-    def predict(im_fn, model, with_img=False, output_dir=None, with_gpu=False):
+    def predict(im_fn, model, keys, with_img=False, output_dir=None, with_gpu=False):
         im = cv2.imread(im_fn.as_posix())[:, :, ::-1]
         im_resized, (ratio_h, ratio_w) = Toolbox.resize_image(im)
         im_resized = im_resized.astype(np.float32)
@@ -368,7 +310,8 @@ class Toolbox:
             boxes = boxes[:, :8].reshape((-1, 4, 2))
             boxes[:, :, 0] /= ratio_w
             boxes[:, :, 1] /= ratio_h
-        
+
+                    
         labelConverter = strLabelConverter(keys)
         pred_transcripts = []
         if len(mapping) > 0:
@@ -381,8 +324,9 @@ class Toolbox:
                 pred_transcripts.append(t)
             pred_transcripts = np.array(pred_transcripts)
         print('im_fn.name: ', im_fn.name , "pred_transcripts ",  pred_transcripts)
-    
-
+        
+        
+            
         polys = []
         if len(boxes) != 0:
 
